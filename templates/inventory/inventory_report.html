@@ -1,0 +1,46 @@
+<!-- Inventory Items Report -->
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+<h1>Inventory Items Report</h1>
+<table id="inventory_table" class="inventory_table">
+    <thead>
+        <tr>
+            <th>Sl</th>
+            <th>Owner</th>
+            <th>Item Id</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Total Amount</th>
+            <th>GST Amount(18%)</th>
+            <th>Total Amount with GST</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in inventory_items %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ item.user.username }}</td>
+                <td>{{ item.id}}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.category }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.unit_price }}</td>
+                <td>{{ item.total_amount }}</td>
+                <td>{{ item.gst_amount }}</td>
+                <td>{{ item.total_amount_with_gst }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#inventory_table').DataTable();
+    });
+</script>
+{% endblock content %}

@@ -1,0 +1,84 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+    {% if messages %}
+        <div class="row mt-3">
+            {% for message in messages %}
+                {% if message.tags == 'error' %}
+                    <div class="col-md-10 col-12 mx-auto alert alert-danger">
+                        {{ message }}
+                    </div>
+                {% else %}
+                    <div class="col-md-10 col-12 mx-auto alert alert-success">
+                        {{ message }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="row">
+        <div class="col-md-10 col-12 mx-auto mt-5">
+            <div class="d-flex justify-content-end mb-3">
+                <!-- Search Form -->
+                <form method="GET" action="" class="form-inline">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search..." name="search_query" value="{{ search_query }}">
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Qty</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Image</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if items|length == 0 %}
+                        <tr>
+                            <th scope="row">-</th>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td></td>
+                        </tr>
+                    {% endif %}
+
+                    {% for item in items %}
+                        <tr>
+                            <th scope="row">{{ item.id }}</th>
+                            <td>{{ item.name }}</td>
+                            {% if item.id in low_inventory_ids %}
+                                <td class="text-danger">{{ item.quantity }}</td>
+                            {% else %}
+                                <td class="text-success">{{ item.quantity }}</td>
+                            {% endif %}
+                            <td>{{ item.category.name }}</td>
+                            <td>
+                                {% if item.image %}
+                                    <img src="{{ item.image.url }}" alt="Image" style="max-width:50px;">
+                                {% else %}
+                                    No Image
+                                {% endif %}
+                            </td>
+                            <td><a href="{% url 'edit-item' item.id %}" class="btn btn-outline-info">Edit</a></td>
+                            <td><a href="{% url 'delete-item' item.id %}" class="btn btn-secondary">Delete</a></td>
+                            <td><a href="{% url 'update_quantity' item.id %}" class="btn btn-success">Add Qty</a></td>
+                            <td><a href="{% url 'issue_quantity' item.id %}" class="btn btn-danger">Issue Qty</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table><br>
+        </div>
+    </div>
+{% endblock content %}
+

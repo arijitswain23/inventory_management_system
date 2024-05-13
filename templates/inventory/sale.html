@@ -1,0 +1,60 @@
+{% extends 'inventory/base.html' %}
+{% block content %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 20px;
+    }
+
+    h2 {
+        color: #007bff;
+    }
+
+    p {
+        margin-bottom: 10px;
+    }
+
+    .error-message {
+        color: #dc3545;
+        margin-top: 10px;
+    }
+
+    form {
+        margin-top: 20px;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+<body>
+    <h2>{{ item.name }}</h2>
+    <p>Price: {{ item.unit_price }}</p>
+    <p>Available Quantity: {{ item.quantity }}</p>
+    {% if error_message %}
+    <p class="error-message">{{ error_message }}</p>
+    {% endif %}
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Buy</button>
+    </form>
+</body>
+{% endblock content %}

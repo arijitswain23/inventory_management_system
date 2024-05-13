@@ -1,0 +1,57 @@
+<!-- inventory/profile.html -->
+{% extends 'inventory/base.html' %}
+
+{% block title %}
+    Profile Page
+{% endblock %}
+
+{% block content %}
+<style>
+    body
+    {
+        background-image: url("https://png.pngtree.com/thumb_back/fh260/background/20210420/pngtree-black-red-and-white-color-geometric-background-design-for-banner-business-image_632652.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+
+    }
+    .div
+    {
+        
+        width: 300px;
+        
+     
+    }
+    .img
+    {
+        border-radius: 100%;
+    }
+    h1
+    {
+        color: black;
+        font-family: Arial, Helvetica, sans-serif;
+        font-weight: bold;
+        font-size: medium;
+        
+    }
+</style>
+    <div class="profile-details">
+        <center>
+            <h1>Displaying The Details Of {{ user.username }}</h1><br>
+            {% if user.userprofile.profile_photo.url %}
+            <img src="{{user.userprofile.profile_photo.url}}" alt="No Image" height="150px" width="150px" class="img"><br><br>
+            {% else %}
+            <img src="https://www.ommel.fi/content/uploads/2019/03/dummy-profile-image-male.jpg" alt="No Image" height="150px" width="150px" class="img"><br><br>
+            {% endif %}
+            <h3>Username: {{ user.username }}</h3>
+            {% if user.email %}
+                <h3>Email: {{ user.email }}</h3>
+            {% else %}
+                <p>No email associated with this account.</p>
+            {% endif %}
+            <h5>Address: {{ user.userprofile.address }}</h5>
+            <div class="pt-3">
+                <small class="text-muted"><a href="{% url 'forgot_password' %}" class="ml-2">Forgot Password?</a></small> <!-- Add this line for forgot password -->
+            </div>
+        </center>
+    </div>
+{% endblock content %}

@@ -1,0 +1,30 @@
+{% extends 'inventory/base.html' %}
+{% block content %}
+
+<style>
+    *
+    {
+        margin: 0px;
+        padding: 0px;
+        
+    }
+    body
+    {
+        background-image: url("https://img.freepik.com/premium-psd/thank-you-card-with-watercolor-floral-frame-romantic-blue_527873-163.jpg");
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+    h1
+    {
+        color: rgb(25, 194, 241);
+        height: 200px;
+        width: 200px;
+    }
+</style>
+<body>
+    <a href="{% url 'dashboard' %}" class="btn btn-outline-primary my-3 mx-4">Go Back</a>
+    <center>
+        <h1>Thank You For Your Purchase !!! </h1>
+    </center>
+</body>
+{% endblock content %}

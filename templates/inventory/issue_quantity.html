@@ -1,0 +1,13 @@
+{% extends 'inventory/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+  <a href="{% url 'dashboard' %}" class="btn btn-outline-primary my-3 mx-4">Go Back</a>
+
+  <center><h2>Issue Quantity</h2><br>
+    <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-danger">Issue Quantity</button>
+</form></center>
+{% endblock content %}

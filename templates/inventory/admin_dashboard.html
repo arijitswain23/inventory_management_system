@@ -1,0 +1,85 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1>Dashboard</h1>
+
+    <!-- Display messages -->
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">
+        {{ message }}
+    </div>
+    {% endfor %}
+
+    <!-- Add Item Form -->
+    <div class="card my-4">
+        <div class="card-header">
+            <h5 class="card-title">Add Inventory Item</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ add_item_form|crispy }}
+                <button type="submit" class="btn btn-primary">Add Item</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Buy Item Form -->
+    <div class="card my-4">
+        <div class="card-header">
+            <h5 class="card-title">Buy Item</h5>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {% csrf_token %}
+                {{ buy_item_form|crispy }}
+                <button type="submit" class="btn btn-primary">Buy Item</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Display Buy Items -->
+    <h3>Buy Items</h3>
+    <canvas id="buyItemsChart"></canvas>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('/api/buy-items/')  // Replace '/api/buy-items/' with your actual URL to fetch buy items data
+            .then(response => response.json())
+            .then(data => {
+                const labels = data.map(item => item.supplier_name);
+                const quantities = data.map(item => item.quantity);
+                
+                var ctx = document.getElementById('buyItemsChart').getContext('2d');
+                var myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Buy Items',
+                            data: quantities,
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true
+                                }
+                            }]
+                        }
+                    }
+                });
+            });
+    });
+</script>
+{% endblock %}

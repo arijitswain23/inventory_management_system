@@ -1,0 +1,294 @@
+{% extends 'inventory/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+
+    h1 {
+        text-align: center;
+        margin-top: 20px;
+        color: #333;
+    }
+
+    form {
+        max-width: 400px;
+        margin: 20px auto;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
+    }
+
+    select, input[type="number"], input[type="date"], input[type="text"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    button {
+        width: 100%;
+        padding: 10px;
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: #45a049;
+    }
+
+    p.error-message {
+        color: #f00;
+        margin-top: 10px;
+    }
+</style>
+<body>
+    
+<center>
+    <h1>Sales Item</h1>
+    <form method="post" id="sell-item-form">
+        {% csrf_token %}
+        <label for="customer_name">Customer Name:</label>
+        <input type="text" name="customer_name" id="customer_name" required>
+        <label for="mobile_number">Mobile Number:</label>
+        <input type="number" name="mobile_number" id="mobile_number" required maxlength="10" required>
+        <label for="item_id">Select Item:</label>
+        <select name="item_id" id="item_id">
+            {% for item in available_items %}
+            <option value="{{ item.id }}" data-unit-price="{{ item.unit_price }}">{{ item.name }}</option>
+            {% endfor %}
+        </select>
+        <label for="quantity">Quantity:</label>
+        <input type="number" name="quantity" id="quantity" min="1" required>
+        <label for="sale_date">Sale Date:</label>
+        <input type="date" name="sale_date" id="sale_date" value="{{ sale_date }}" required>
+        <label for="unit_price">Unit Price:</label>
+        <input type="number" name="unit_price" id="unit_price" readonly>
+        <button type="button" onclick="sellItem()">Sale</button>
+    </form>
+    {% if error_message %}
+    <p class="error-message">{{ error_message }}</p>
+    {% endif %}
+</center>
+
+<!-- JavaScript to update unit price based on selected product -->
+<!-- JavaScript to update unit price based on selected product -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var itemDropdown = document.getElementById("item_id");
+        var unitPriceInput = document.getElementById("unit_price");
+
+        itemDropdown.addEventListener("change", function () {
+            var selectedOption = itemDropdown.options[itemDropdown.selectedIndex];
+            var unitPrice = selectedOption.getAttribute("data-unit-price");
+            unitPriceInput.value = unitPrice;
+        });
+
+        // When the form is submitted
+        var sellForm = document.getElementById("sell-item-form");
+        sellForm.addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Submit the form data using AJAX
+            var formData = new FormData(sellForm);
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", sellForm.action);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // Form submission successful, trigger print dialog
+                        window.print();
+                    } else {
+                        // Error occurred, handle it as needed
+                        console.error("Error:", xhr.statusText);
+                    }
+                }
+            };
+            xhr.send(formData);
+        });
+    });
+    function sellItem() {
+        var sellForm = document.getElementById("sell-item-form");
+        var formData = new FormData(sellForm);
+    
+        // Extract the selected item's unit price and name
+        var itemDropdown = document.getElementById("item_id");
+        var selectedOption = itemDropdown.options[itemDropdown.selectedIndex];
+        var unitPrice = selectedOption.getAttribute("data-unit-price");
+        var productName = selectedOption.innerText; // Get the inner text, which is the product name
+    
+        // Set the unit price and product name in the form data
+        formData.set("unit_price", unitPrice);
+        formData.set("product_name", productName); // Add product name to the form data
+    
+        // Submit the form data using AJAX
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", sellForm.action);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                if (xhr.status === 200) {
+                    // Form submission successful, generate and print bill
+                    generateAndPrintBill(formData);
+                } else {
+                    // Error occurred, handle it as needed
+                    console.error("Error:", xhr.statusText);
+                }
+            }
+        };
+        xhr.send(formData);
+    }
+    
+    function generateAndPrintBill(formData) {
+        // Extract data from form data
+        var customerName = formData.get("customer_name");
+        var mobileNumber = formData.get("mobile_number");
+        var productName = formData.get("product_name"); // Get the product name from form data
+        var quantity = formData.get("quantity");
+        var saleDate = formData.get("sale_date");
+        var unitPrice = formData.get("unit_price");
+        var totalPrice = parseFloat(quantity) * parseFloat(unitPrice);
+        var gstRate = 0.18; // Assuming 18% GST, adjust as per your requirement
+        var gstAmount = gstRate * totalPrice;
+        var totalPriceWithGST = totalPrice + gstAmount;
+        var grandTotalGST = gstAmount; // Grand total GST
+        var grandTotalAmount = totalPriceWithGST; // Grand total amount
+    
+        // Function to convert number to words
+        function numberToWords(num) {
+            var units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+            var teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+            var tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            var scales = ['', 'Thousand', 'Million', 'Billion'];
+    
+            function convertLessThanOneThousand(number) {
+                var words;
+    
+                if (number % 100 < 20) {
+                    words = units[number % 100];
+                    number = Math.floor(number / 100);
+                } else {
+                    words = units[number % 10];
+                    number = Math.floor(number / 10);
+                    words = tens[number % 10] + ' ' + words;
+                    number = Math.floor(number / 10);
+                }
+                if (number === 0) return words;
+                return units[number] + ' Hundred ' + words;
+            }
+    
+            function convert(number) {
+                var word = '';
+                for (var i = 0; i < scales.length; i++) {
+                    if (number === 0) return word;
+                    var currentNum = number % 1000;
+                    if (currentNum !== 0) {
+                        var currentWord = convertLessThanOneThousand(currentNum);
+                        word = currentWord + ' ' + scales[i] + ' ' + word;
+                    }
+                    number = Math.floor(number / 1000);
+                }
+                return word;
+            }
+    
+            if (num === 0) return 'Zero';
+            if (num < 0) return 'Negative ' + convert(Math.abs(num));
+            return convert(num);
+        }
+    
+        // Convert grand total amount to words
+        var grandTotalAmountInWords = numberToWords(grandTotalAmount);
+    
+        // Generate bill HTML content
+        var billContent = `
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+            .container {
+                max-width: 600px;
+                margin: 20px auto;
+                padding: 20px;
+                background-color: #fff;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            h1 {
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            p {
+                margin-bottom: 10px;
+            }
+            hr {
+                border: 0;
+                border-top: 1px solid #ccc;
+                margin: 20px 0;
+            }
+            .signature {
+                margin-top: 20px;
+            }
+            label {
+                font-weight: bold;
+            }
+        </style>
+        
+            <div class="container">
+                <h1>Generated Bill</h1>
+                <p>Customer Name: ${customerName}</p>
+                <p>Mobile Number: ${mobileNumber}</p>
+                <p>Sale Date: ${saleDate}</p>
+                <hr>
+                <p>Product Name: ${productName}</p>
+                <p>Quantity: ${quantity}</p>
+                <p>Unit Price: ${unitPrice}</p>
+                <p>Total Price: ${totalPrice}</p>
+                <p>GST Amount(18%): ${gstAmount}</p><hr>
+                <p>Grand Total Price (including GST): ${totalPriceWithGST}</p>
+                <p>Grand Total Amount (in words): ${grandTotalAmountInWords} Only</p><br><hr>
+                <h3>Terms and Conditions</h3>
+        <p>1. Payment is due upon receipt of this invoice. Late payment is subject to interest charges of 1.5% per month.</p>
+        <p>2. All sales are final. No refunds or exchanges unless otherwise stated.</p>
+        <p>3. The company reserves the right to modify prices and product availability without prior notice.</p>
+        <p>4. Warranty terms and conditions apply to all products sold.</p>
+        <p>5. Goods remain the property of the company until payment is received in full.</p><br>
+                    <p style="text-align: center;">Thank You!!! Visit Again</p>
+            </div><br><br>
+
+
+            <div class="signature">
+                <label for="signature">Seller Signature</label>
+            </div>
+        `;
+    
+        // Create a new window and set the bill content as its document body
+        var billWindow = window.open("", "_blank");
+        billWindow.document.write(billContent);
+        billWindow.document.close(); // Close writing mode to enable printing
+    
+        // Print the bill
+        billWindow.print();
+    
+        // Close the bill window after printing
+        billWindow.close();
+    }
+</script>
+
+</body>
+{% endblock content %}

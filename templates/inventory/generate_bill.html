@@ -1,0 +1,23 @@
+<!-- generate_bill.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Bill</title>
+</head>
+<body>
+    <h1>Generate Bill</h1>
+    <h2>Sales Record ID: {{ sales_record.id }}</h2>
+    <h3>Customer Name: {{ sales_record.customer_name }}</h3>
+    <h3>Mobile Number: {{ sales_record.mobile_number }}</h3>
+    <h3>Sale Date: {{ sales_record.sale_date }}</h3>
+    <h3>Items:</h3>
+    <ul>
+        {% for item in sales_record.items.all %}
+            <li>{{ item.item.name }} - Quantity: {{ item.quantity }} - Unit Price: {{ item.unit_price }}</li>
+        {% endfor %}
+    </ul>
+    <!-- Add total and other bill details here -->
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!-- add_to_cart.html -->
+
+{% extends 'inventory/base.html' %}
+{% block content %}
+  <h2>Add Items to Cart</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <table>
+      {{ formset.as_table }}
+    </table>
+    <button type="submit">Add to Cart</button>
+  </form>
+{% endblock content %}

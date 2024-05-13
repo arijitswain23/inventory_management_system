@@ -1,0 +1,44 @@
+<!-- bill_template.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Bill</title>
+    <style>
+        /* Your bill styling here */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .bill-container {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        strong {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="bill-container">
+        <h2>Sales Bill</h2>
+        <p><strong>Item:</strong> {{ item_name }}</p>
+        <p><strong>Quantity:</strong> {{ quantity }}</p>
+        <p><strong>Unit Price:</strong> {{ unit_price }}</p>
+        <p><strong>Total Price:</strong> {{ total_price }}</p>
+        <!-- Add more details here as needed -->
+    </div>
+</body>
+</html>

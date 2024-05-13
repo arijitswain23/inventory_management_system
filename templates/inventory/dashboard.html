@@ -1,0 +1,184 @@
+{% extends 'inventory/base.html' %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+{% block content %}
+<style>
+    /* inventory/styles.css */
+
+/* Dashboard Page */
+.row {
+    margin-top: 20px;
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Table */
+.table {
+    background-color: #fff;
+}
+
+.table th,
+.table td {
+    border: 1px solid #dee2e6;
+}
+
+.table thead th {
+    background-color: #343a40;
+    color: #fff;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+/* Search Form */
+.form-inline .form-control {
+    width: 300px;
+    margin-right: 10px;
+}
+
+.input-group-append .btn-primary {
+    border-radius: 0 5px 5px 0;
+}
+
+/* Alerts */
+.alert {
+    margin-top: 10px;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+</style>
+<body>
+
+{% if messages %}
+<div class="row">
+    {% for message in messages %}
+    <div class="col-md-10 col-12 mx-auto alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="row">
+    <div class="col-md-10 col-12 mx-auto">
+        <div class="d-flex justify-content-end">
+                <div class="dropdown" style="margin-right: 10px;">
+                    <button class="btn btn-warning dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                      Action
+                    </button>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" href="{% url 'sell1' %}">Sale Items</a>
+                      <a class="dropdown-item" href="{% url 'buy_items' %}">Buy Item</a>
+                      <a class="dropdown-item" href="{% url 'sell' %}">Sale Item</a>
+                    </div>
+                </div>
+                {% if user.is_superuser %}
+                <a href="{% url 'add-item' %}" class="btn btn-success" style="margin-right: 10px;">Add Item</a>
+                <a href="{% url 'user_list' %}" class="btn btn-info" style="margin-left: 10px;">Employees</a>
+                <div class="dropdown" style="margin-left: 10px;">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+                        View Reports
+                    </button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'inventory_report' %}">View Report</a>
+                        <a class="dropdown-item" href="{% url 'sales_report' %}">Sales Report</a>
+                        <a class="dropdown-item" href="{% url 'buy_report' %}">Purchase Report</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-10 col-12 mx-auto">
+            <table class="table table-hover" id="inventoryTable">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Sl No</th>
+                        <th scope="col">Image</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Unit Price</th>
+                        <th scope="col">Qty</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if items|length == 0 %}
+                    <tr>
+                        <td colspan="7" class="text-center">No items found</td>
+                    </tr>
+                    {% endif %}
+    
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>
+                            {% if item.image %}
+                            <img src="{{ item.image.url }}" alt="Image" style="max-width:50px;">
+                            {% else %}
+                            No Image
+                            {% endif %}
+                        </td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.unit_price }}</td>
+                        <td {% if item.id in low_inventory_ids %} class="text-danger" {% else %} class="text-success" {% endif %}>{{ item.quantity }}</td>
+                        <td>{{ item.category.name }}</td>
+                            <td>{% if user.is_superuser %}
+                                <a href="{% url 'edit-item' item.id %}" class="btn btn-outline-info btn-sm mr-1">Edit</a>
+                                <a href="{% url 'delete-item' item.id %}" class="btn btn-secondary btn-sm mr-1">Delete</a>
+                                {% endif %}
+                                <a href="{% url 'update_quantity' item.id %}" class="btn btn-success btn-sm mr-1">Add Qty</a>
+                                <a href="{% url 'issue_quantity' item.id %}" class="btn btn-danger btn-sm mr-1">Issue Qty</a>
+                                <a href="{% url 'generate_qrcode' item.id %}" class="btn btn-warning btn-sm mr-1">QR Code</a>
+                                <a href="{% url 'generate_barcode' item.id %}" class="btn btn-dark btn-sm mr-1">Bar Code</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        </body>
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
+        <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('#inventoryTable').DataTable({
+                    "pagingType": "full_numbers"
+                });
+            });
+        </script>
+        {% endblock content %}

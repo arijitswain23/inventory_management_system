@@ -1,0 +1,364 @@
+{% extends 'inventory/base.html' %}
+{% block content %}
+<!-- sell_multiple_items.html -->
+<title>Sell Multiple Items</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+    }
+
+    center {
+        margin-top: 50px;
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    select,
+    input[type="number"],
+    input[type="text"], /* Added to target text input */
+    input[type="date"], /* Added to target date input */
+    button {
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    .error-message {
+        color: red;
+    }
+    .form-line {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+  }
+  
+  .form-line label {
+      margin-right: 10px;
+  }
+  
+  .form-line input[type="text"],
+  .form-line input[type="date"],
+  .form-line input[type="number"] {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+  }
+  
+  #items-container {
+      margin-top: 20px;
+  }
+  
+  .item-row {
+      display: flex;
+      align-items: center;
+  }
+  
+  .item-row label,
+  .item-row select,
+  .item-row input[type="number"] {
+      margin-right: 10px;
+  }
+  
+</style>
+
+<body>
+    <body>
+      <center><h1>Sell Multiple Items</h1></center><br>
+    <form method="post" id="sell-item-form">
+        {% csrf_token %}
+        <div class="form-line">
+            <label for="customer_name">Customer Name:</label>
+            <input type="text" name="customer_name" id="customer_name" required>
+        </div>
+        <div class="form-line">
+            <label for="mobile_number">Mobile Number:</label>
+            <input type="number" name="mobile_number" id="mobile_number" required maxlength="10" required>
+        </div>
+        <div class="form-line">
+            <label for="sale_date">Sale Date:</label>
+            <input type="date" name="sale_date" id="sale_date" required>
+        </div>
+        <div id="items-container">
+            <!-- First item row -->
+            <div class="item-row">
+                <label for="item_id">Select Item:</label>
+                <select name="item_id[]" class="item-id" onchange="updateUnitPrice(this)" required>
+                    {% for item in available_items %}
+                    <option value="{{ item.id }}" data-unit-price="{{ item.unit_price }}">{{ item.name }}</option>
+                    {% endfor %}
+                </select>
+                <label for="quantity">Quantity:</label>
+                <input type="number" name="quantity[]" class="quantity" min="1" required>
+                <label for="unit_price">Unit Price:</label>
+                <input type="number" name="unit_price[]" class="unit-price" readonly>
+            </div>
+            <!-- Item rows will be dynamically added here -->
+        </div>
+        <button type="button" id="add-item-btn" class="btn btn-success">Add Item</button>
+        <button type="button" id="delete-item-btn" class="btn btn-danger">Delete Item</button>
+        <button type="button" onclick="sellItems()" class="btn btn-warning">Sale</button>
+    </form>
+    <p class="error-message" style="color: red; display: none;">Requested quantity not available</p>
+    <!-- Your JavaScript code -->
+    <!-- Your JavaScript code -->
+    <script>
+        function updateUnitPrice(select) {
+            var selectedOption = select.options[select.selectedIndex];
+            var unitPriceInput = select.parentElement.querySelector('.unit-price');
+            unitPriceInput.value = selectedOption.dataset.unitPrice;
+        }
+    
+        function sellItems() {
+            var sellForm = document.getElementById("sell-item-form");
+            var formData = new FormData(sellForm);
+    
+            // Submit the form data using AJAX
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", sellForm.action);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    if (xhr.status === 200) {
+                        // Form submission successful, generate and print bill
+                        generateAndPrintBill(formData);
+                    } else {
+                        // Error occurred, handle it as needed
+                        console.error("Error:", xhr.statusText);
+                    }
+                }
+            };
+            xhr.send(formData);
+        }
+    
+
+        function numberToWords(number) {
+            var units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+            var teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+            var tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+            var thousands = ['', 'Thousand', 'Million', 'Billion', 'Trillion'];
+        
+            // Function to convert a group of three digits to words
+            function convertGroup(num) {
+                var result = '';
+                if (num > 99) {
+                    result += units[Math.floor(num / 100)] + ' Hundred ';
+                    num %= 100;
+                }
+                if (num >= 10 && num <= 19) {
+                    return result + teens[num - 10] + ' ';
+                } else if (num >= 20) {
+                    result += tens[Math.floor(num / 10)] + ' ';
+                    num %= 10;
+                }
+                if (num > 0) {
+                    result += units[num] + ' ';
+                }
+                return result;
+            }
+        
+            // Function to convert the entire number to words
+            function convertWholeNumber(num) {
+                if (num === 0) return 'Zero';
+                var result = '';
+                var groupIndex = 0;
+                do {
+                    var chunk = num % 1000;
+                    if (chunk !== 0) {
+                        result = convertGroup(chunk) + thousands[groupIndex] + ' ' + result;
+                    }
+                    groupIndex++;
+                    num = Math.floor(num / 1000);
+                } while (num > 0);
+                return result.trim();
+            }
+        
+            return convertWholeNumber(number);
+        }
+
+        
+        function generateAndPrintBill(formData) {
+            // Extract data from form data
+            var customerName = formData.get("customer_name");
+            var mobileNumber = formData.get("mobile_number");
+            var saleDate = formData.get("sale_date");
+            var items = formData.getAll("item_id[]"); // Get all selected items
+            var quantities = formData.getAll("quantity[]"); // Get quantities for each item
+            var unitPrices = formData.getAll("unit_price[]"); // Get unit prices for each item
+            var productNames = []; // Initialize array to store product names
+        
+            // Retrieve product names from the selected items
+            var itemDropdowns = document.querySelectorAll('.item-id');
+            itemDropdowns.forEach(function (select) {
+                var selectedOption = select.options[select.selectedIndex];
+                productNames.push(selectedOption.textContent); // Push the text content of the selected option
+            });
+        
+            // Generate bill HTML content
+            var billContent  = `
+                <style>
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 20px;
+                    }
+                    th, td {
+                        border: 1px solid #ddd;
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    th {
+                        background-color: #f2f2f2;
+                    }
+                    .signature {
+                      margin-top: 20px;
+                  }
+                  label {
+                      font-weight: bold;
+                  }
+                </style>
+                <div class="container">
+                    <h1>Generated Bill</h1>
+                    <p>Customer Name: ${customerName}</p>
+                    <p>Mobile Number: ${mobileNumber}</p>
+                    <p>Sale Date: ${saleDate}</p>
+                    <hr>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product Name</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>Total Price</th>
+                                <th>GST Amount(18%)</th>
+                                <th>Total Price (including GST)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+    
+            // Calculate and add rows for each item
+            var grandTotalPrice = 0;
+            for (var i = 0; i < items.length; i++) {
+                var itemName = productNames[i]; // Get the product name instead of ID
+                var quantity = quantities[i];
+                var unitPrice = unitPrices[i];
+                var totalPrice = parseFloat(quantity) * parseFloat(unitPrice);
+                var gstAmount = 0.18 * totalPrice; // Assuming 18% GST, adjust as per your requirement
+                var totalPriceWithGST = totalPrice + gstAmount;
+                grandTotalPrice += totalPriceWithGST;
+    
+    
+                // Add row for each item
+                billContent += `
+                    <tr>
+                        <td>${itemName}</td>
+                        <td>${quantity}</td>
+                        <td>${unitPrice}</td>
+                        <td>${totalPrice.toFixed(2)}</td>
+                        <td>${gstAmount.toFixed(2)}</td>
+                        <td>${totalPriceWithGST.toFixed(2)}</td>
+                    </tr>
+                `;
+            }
+    
+            // Close the table and add grand total
+            billContent += `
+                        </tbody>
+                    </table>
+                    <p>Grand Total Price (including GST): ${grandTotalPrice.toFixed(2)} </p>
+                    <p>Grand Total Price (in words): ${numberToWords(Math.floor(grandTotalPrice))} Only</p><br>
+                    <hr>
+                    <h3>Terms and Conditions</h3>
+                    <p>1. Payment is due upon receipt of this invoice. Late payment is subject to interest charges of 1.5% per month.</p>
+                    <p>2. All sales are final. No refunds or exchanges unless otherwise stated.</p>
+                    <p>3. The company reserves the right to modify prices and product availability without prior notice.</p>
+                    <p>4. Warranty terms and conditions apply to all products sold.</p>
+                    <p>5. Goods remain the property of the company until payment is received in full.</p><br>
+                    <p style="text-align: center;">Thank You!!! Visit Again</p><hr><br><br>
+                <div class="signature">
+                  <label for="signature">Seller Signature</label>
+                </div>
+            `;
+    
+            // Create a new window and set the bill content as its document body
+            var billWindow = window.open("", "_blank");
+            billWindow.document.write(billContent);
+            billWindow.document.close(); // Close writing mode to enable printing
+    
+            // Print the bill
+            billWindow.print();
+    
+            // Close the bill window after printing
+            billWindow.close();
+        }
+    
+        document.addEventListener("DOMContentLoaded", function () {
+            const addItemBtn = document.getElementById("add-item-btn");
+            const deleteItemBtn = document.getElementById("delete-item-btn");
+            const itemsContainer = document.getElementById("items-container");
+    
+            deleteItemBtn.addEventListener("click", function () {
+                const itemRows = document.querySelectorAll(".item-row");
+                if (itemRows.length > 1) { // Ensure at least one row remains
+                    const lastItemRow = itemRows[itemRows.length - 1];
+                    lastItemRow.remove();
+                }
+            });
+    
+            addItemBtn.addEventListener("click", function () {
+                const itemRow = document.createElement("div");
+                itemRow.classList.add("item-row");
+                itemRow.innerHTML = `
+                    <label for="item_id">Select Item:</label>
+                    <select name="item_id[]" class="item-id" onchange="updateUnitPrice(this)" required>
+                        {% for item in available_items %}
+                        <option value="{{ item.id }}" data-unit-price="{{ item.unit_price }}">{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" name="quantity[]" class="quantity" min="1" required>
+                    <label for="unit_price">Unit Price:</label>
+                    <input type="number" name="unit_price[]" class="unit-price" readonly>
+                    <input type="hidden" name="product_name[]" value="{{ item.name }}"> <!-- Add this line -->
+                `;
+                itemsContainer.appendChild(itemRow);
+            });
+        });
+    
+    </script>
+    
+</body>
+{% endblock content %}
+

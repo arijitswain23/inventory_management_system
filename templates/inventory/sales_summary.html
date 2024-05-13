@@ -1,0 +1,64 @@
+{% extends 'inventory/base.html' %}
+{% block content %}
+    <title>Sales Summary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .summary-item {
+            margin-bottom: 15px;
+        }
+
+        .summary-item p {
+            margin: 5px 0;
+        }
+
+        .summary-item hr {
+            border: none;
+            border-top: 1px solid #ccc;
+            margin: 10px 0;
+        }
+
+        .total-price {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sales Summary</h1>
+        <div class="summary-item">
+            <p>Customer Name: <span>{{ customer_name }}</span></p> <!-- Added -->
+            <p>Mobile Number: <span>{{ mobile_number }}</span></p> <!-- Added -->
+            <hr>
+            <p>Product Name: <span>{{ product_name }}</span></p>
+            <p>Quantity: <span>{{ quantity }}</span></p>
+            <p>Sale Date: <span>{{ sale_date }}</span></p>
+            <p>Unit Price: <span>{{ unit_price }}</span></p>
+            <hr>
+            <p class="total-price">Total Price: <span>{{ total_price }}</span></p>
+            <p class="total-price">GST Amount: <span>{{ gst_amount }}</span></p>
+            <p class="total-price">Total Price (including GST): <span>{{ total_price_with_gst }}</span></p><br>
+            <a href="{% url 'generatesale_bill' product_name=product_name quantity=quantity sale_date=sale_date unit_price=unit_price total_price=total_price gst_amount=gst_amount total_price_with_gst=total_price_with_gst customer_name=customer_name mobile_number=mobile_number %}" class="btn btn-primary">Generate Bill</a>
+        </div>
+    </div>
+    
+{% endblock content %}

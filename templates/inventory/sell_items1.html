@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sell Items</title>
+</head>
+<body>
+    <h1>Sell Items</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div id="items-container">
+            <div class="item">
+                <label for="id_item">Item:</label>
+                {{ form.item }}
+                <label for="id_quantity">Quantity:</label>
+                {{ form.quantity }}
+                <label for="id_unit_price">Unit Price:</label>
+                <span id="unit-price"></span>
+            </div>
+        </div>
+        <button type="button" id="add-item-btn">Add Item</button>
+        <br>
+        <label for="id_sale_date">Sale Date:</label>
+        {{ form.sale_date }}
+        <br>
+        <label for="id_customer_name">Customer Name:</label>
+        {{ form.customer_name }}
+        <br>
+        <label for="id_mobile_number">Mobile Number:</label>
+        {{ form.mobile_number }}
+        <br>
+        <button type="submit">Sell</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addItemBtn = document.getElementById('add-item-btn');
+            const itemsContainer = document.getElementById('items-container');
+
+            addItemBtn.addEventListener('click', function() {
+                const newItem = document.createElement('div');
+                newItem.classList.add('item');
+                newItem.innerHTML = `
+                    <label for="id_item">Item:</label>
+                    ${document.getElementById('id_item').outerHTML}
+                    <label for="id_quantity">Quantity:</label>
+                    ${document.getElementById('id_quantity').outerHTML}
+                    <label for="id_unit_price">Unit Price:</label>
+                    <span class="unit-price"></span>
+                `;
+                itemsContainer.appendChild(newItem);
+            });
+
+            // Event listener for item selection change
+            document.querySelectorAll('select[name="item"]').forEach(itemSelect => {
+                itemSelect.addEventListener('change', function() {
+                    const itemValue = this.value;
+                    const unitPriceSpan = this.parentElement.querySelector('.unit-price');
+
+                    // Fetch unit price for the selected item via AJAX or other means
+                    // For example, you can fetch it from the server using an API call
+                    // Replace the example code below with your actual logic to fetch the price
+                    fetch(`/get-unit-price/?item_id=${itemValue}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            unitPriceSpan.textContent = data.unit_price;
+                        })
+                        .catch(error => {
+                            console.error('Error fetching unit price:', error);
+                        });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+{% extends 'inventory/base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+    }
+    center {
+        margin-top: 50px;
+    }
+    h1 {
+        color: #333;
+    }
+    form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    label {
+        display: block;
+        margin-bottom: 10px;
+    }
+    select, input[type="number"], button {
+        margin-bottom: 20px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+    button {
+        background-color: #007bff;
+        color: #fff;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    .error-message {
+        color: red;
+    }
+</style>
+    <body>
+        <center><h1>Sell Multiple Items</h1></center>
+        <form method="post">
+            {% csrf_token %}
+            <label for="customer_name">Customer Name:</label>
+            <input type="text" name="customer_name" id="customer_name" required><br>
+            <label for="mobile_number">Mobile Number:</label>
+            <input type="text" name="mobile_number" id="mobile_number" required><br>
+            <label for="sale_date">Sale Date:</label>
+            <input type="date" name="sale_date" id="sale_date" required><br>
+            <div id="items-container">
+                <div class="item-row">
+                    <label for="item_id">Select Item:</label>
+                    <select name="item_id[]" class="item-id" onchange="updateUnitPrice(this)" required>
+                        {% for item in available_items %}
+                            <option value="{{ item.id }}" data-unit-price="{{ item.unit_price }}">{{ item.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" name="quantity[]" class="quantity" min="1" required>
+                    <label for="unit_price">Unit Price:</label>
+                    <input type="number" name="unit_price[]" class="unit-price" readonly>
+                </div>
+            </div>
+            <button type="button" id="add-item-btn">Add Item</button>
+            <button type="submit">Sell Items</button>
+        </form>
+        <script>
+            function updateUnitPrice(select) {
+                var selectedOption = select.options[select.selectedIndex];
+                var unitPriceInput = select.parentElement.querySelector('.unit-price');
+                unitPriceInput.value = selectedOption.dataset.unitPrice;
+            }
+    
+            // JavaScript to add/remove item rows
+            document.addEventListener("DOMContentLoaded", function () {
+                const addItemBtn = document.getElementById("add-item-btn");
+                const itemsContainer = document.getElementById("items-container");
+    
+                addItemBtn.addEventListener("click", function () {
+                    const itemRow = document.createElement("div");
+                    itemRow.classList.add("item-row");
+                    itemRow.innerHTML = `
+                        <label for="item_id">Select Item:</label>
+                        <select name="item_id[]" class="item-id" onchange="updateUnitPrice(this)" required>
+                            {% for item in available_items %}
+                                <option value="{{ item.id }}" data-unit-price="{{ item.unit_price }}">{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="quantity">Quantity:</label>
+                        <input type="number" name="quantity[]" class="quantity" min="1" required>
+                        <label for="unit_price">Unit Price:</label>
+                        <input type="number" name="unit_price[]" class="unit-price" readonly>
+                    `;
+                    itemsContainer.appendChild(itemRow);
+                });
+            });
+        </script>
+    </body>
+{% endblock content %}

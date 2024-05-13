@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Bill</title>
+    <style>
+        /* Global styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 10px;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .bill-terms p {
+            margin-bottom: 10px;
+        }
+        .signature {
+            margin-top: 20px;
+            margin-left: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generated Bill</h1>
+        {% for summary in summaries %}
+        <div class="item">
+            <p><strong>Product Name:</strong> {{ summary.product_name }}</p>
+            <p><strong>Quantity:</strong> {{ summary.quantity }}</p>
+            <p><strong>Sale Date:</strong> {{ summary.sale_date }}</p>
+            <p><strong>Unit Price:</strong> {{ summary.unit_price }}</p>
+            <p><strong>Total Price:</strong> {{ summary.total_price_item }}</p>
+            <p><strong>GST Amount:</strong> {{ summary.gst_amount_item }}</p>
+            <p><strong>Total Price with GST:</strong> {{ summary.total_price_with_gst_item }}</p>
+        </div>
+        {% endfor %}
+        <div>
+            <p><strong>Total Price:</strong> {{ total_price }}</p>
+            <p><strong>GST Amount:</strong> {{ gst_amount }}</p>
+            <p><strong>Total Price with GST:</strong> {{ total_price_with_gst }}</p>
+            <p><strong>Customer Name:</strong> {{ customer_name }}</p>
+            <p><strong>Mobile Number:</strong> {{ mobile_number }}</p>
+        </div>
+    </div>
+
+        <button id="printButton" onclick="printBill()">Print Bill</button><br><hr>
+        <h3>Terms and Conditions</h3>
+        <p>1. Payment is due upon receipt of this invoice. Late payment is subject to interest charges of 1.5% per month.</p>
+        <p>2. All sales are final. No refunds or exchanges unless otherwise stated.</p>
+        <p>3. The company reserves the right to modify prices and product availability without prior notice.</p>
+        <p>4. Warranty terms and conditions apply to all products sold.</p>
+        <p>5. Goods remain the property of the company until payment is received in full.</p>
+    </div><br>
+    
+    <div class="signature">
+        <label for="signature">Seller Signature:</label>
+        <input type="text" id="signature" name="signature">
+    </div>
+
+        <script>
+            function printBill() {
+                window.print();
+                document.getElementById('printButton').style.display = 'none';
+            }
+        </script>
+    </body>
+    </html>

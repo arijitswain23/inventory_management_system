@@ -1,0 +1,32 @@
+<!-- inventory/cart.html -->
+{% extends 'inventory/base.html' %}
+{% block content %}
+<body>
+    <h2>Shopping Cart</h2>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Loop through items in the cart -->
+            {% for item_id, item_data in cart.items %}
+            <tr>
+                <td>{{ item_id }}</td>
+                <td>{{ item_data.quantity }}</td>
+                <td>{{ item_data.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2">Total Price:</td>
+                <td>{{ total_price }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+{% endblock %}
